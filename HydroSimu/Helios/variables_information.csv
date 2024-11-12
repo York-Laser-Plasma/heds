@@ -1,0 +1,114 @@
+Variable Name,Dimensions,Info,Units
+time_whole,"('num_times: 502',)",Time [sec],sec
+cycle_num,"('num_times: 502',)",Cycle count,
+Time step size [sec],"('num_times: 502',)",Time step size [sec],sec
+CR has started,"('num_times: 502',)","CR calculation used for timestep (0 = no, 1 = yes)",
+zone_boundaries,"('num_times: 502', 'num_nodes: 101')",Zone boundary [cm],cm
+zone_mass,"('num_times: 502', 'num_zones: 100')",Zone mass [g],g
+ion_temperature,"('num_times: 502', 'num_zones: 100')",Ion temperature [eV],eV
+radiation_temperature,"('num_times: 502', 'num_zones: 100')",Radiation temperature [eV],eV
+mass_density,"('num_times: 502', 'num_zones: 100')",Mass density [g per cm3],g per cm3
+mean_charge,"('num_times: 502', 'num_zones: 100')",Mean charge,
+ion_pressure,"('num_times: 502', 'num_zones: 100')",Ion pressure [J per cm3],J per cm3
+rad_pressure,"('num_times: 502', 'num_zones: 100')",Rad pressure [J per cm3],J per cm3
+heating_term,"('num_times: 502', 'num_zones: 100')","Heating term [J per (zone.cm**N)]; N=2 planar, 0 for spherical)",J per (zone.cm**N)
+cooling_term,"('num_times: 502', 'num_zones: 100')","Cooling term [J per (zone.cm**N)]; N=2 planar, 0 for spherical)",J per (zone.cm**N)
+radsink_term,"('num_times: 502', 'num_zones: 100')","Radiation sink term [J per (zone.cm**N)]; N=2 planar, 0 for spherical)",J per (zone.cm**N)
+ion_specific_internal_energy,"('num_times: 502', 'num_zones: 100')",Ion specific internal energy [J per (g.x)],J per (g.x)
+specific_heat_ion,"('num_times: 502', 'num_zones: 100')",Ion specific heat [J/g/eV],J/g/eV
+specific_heat_ele,"('num_times: 502', 'num_zones: 100')",Electron specific heat [J/g/eV],J/g/eV
+rad_energy_density,"('num_times: 502', 'num_nodes_plus1: 102')",Radiation energy density [J per cm3],J per cm3
+hydro_kinetic_energy,"('num_times: 502', 'num_nodes: 101')",Hydro kinetic energy [J per geofac],J per geofac
+fluid_velocity,"('num_times: 502', 'num_nodes: 101')",fluid velocity [cm per sec],cm per sec
+logLambda_laser,"('num_times: 502', 'num_nodes: 101')",Coulomb logarithm for lasers,
+LaserPwrSrc,"('num_times: 502', 'num_zones: 100')",Laser energy deposition rates [J per (g.sec)],J per (g.sec)
+LaserEnTimeIntg,"('num_times: 502', 'num_zones: 100')",Time-integrated laser energy deposition [J per (cm**X.zone)],J per (cm**X.zone)
+LaserPwrSrcForBeam,"('num_times: 502', 'num_laser_beams: 1', 'num_nodes_plus1: 102')",Laser energy deposition rates for beam [J per (g.sec)],J per (g.sec)
+TimeIntgLaserEnSrcForBeam,"('num_times: 502', 'num_laser_beams: 1', 'num_nodes_plus1: 102')",Time-integrated energy deposition for beam [J per (cm**X.zone)],J per (cm**X.zone)
+LaserPwrDensForBeamAtZoneBd,"('num_times: 502', 'num_laser_beams: 1', 'num_nodes_plus1: 102')",Laser intensity incident at each zone boundary (planar geom. only) [W per cm**2],W per cm**2
+LaserPwrDensTotForBeamAtZoneBd,"('num_times: 502', 'num_laser_beams: 1', 'num_nodes_plus1: 102')","Laser intensity incident at each zone boundary, including reflected light (planar geom. only) [W per cm**2]",W per cm**2
+laserAttinuationCoeff,"('num_times: 502', 'num_laser_beams: 1', 'num_nodes_plus1: 102')",Attinuation coefficient for beam [1/cm],1/cm
+LaserPwrDeliveredForBeam,"('num_times: 502', 'num_laser_beams: 1')",Laser power delivered for beam,
+LaserTransJMinForBeam,"('num_times: 502', 'num_laser_beams: 1')",Laser power transmitted for beam [JMin],JMin
+LaserTransJMaxForBeam,"('num_times: 502', 'num_laser_beams: 1')",Laser power transmitted for beam [JMax],JMax
+LaserPwrOnTargetForBeam,"('num_times: 502', 'num_laser_beams: 1')",Laser power on target for beam,
+Laser start zone index for beam,"('num_times: 502', 'num_laser_beams: 1')",Laser start zone index for beam,
+Laser propogation direction,"('num_times: 502', 'num_laser_beams: 1')",Laser propogation direction,
+LaserEnDelivered,"('num_times: 502',)",Laser energy delivered [J/geofac],J/geofac
+LaserEnDeliveredTimeInt,"('num_times: 502',)",Time-integrated laser energy delivered [J/geofac],J/geofac
+radius_squared,"('num_times: 502', 'num_nodes: 101')",Radius squared [cm2],cm2
+artificial_viscosity,"('num_times: 502', 'num_zones: 100')",Artificial viscosity [J per cm3],J per cm3
+plnk_abs_opac,"('num_times: 502', 'num_zones: 100')",Planck absorption opacity [cm2 per g],cm2 per g
+plnk_ems_opac,"('num_times: 502', 'num_zones: 100')",Planck emmision opacity [cm2 per g],cm2 per g
+ross_opac,"('num_times: 502', 'num_zones: 100')",Rosseland mean opacity [cm2 per g],cm2 per g
+ion_density,"('num_times: 502', 'num_zones: 100')",Ion density [# per cm3],# per cm3
+Fluxes at region interfaces [J per (sec.cm2)],"('num_times: 502', 'num_regions_plus1: 2')",Fluxes at region interfaces [J per (sec.cm2)],J per (sec.cm2)
+Indices at region interfaces,"('num_times: 502', 'num_regions: 1')",Indices at region interfaces,
+RadNetCoolingRateRegion,"('num_times: 502', 'num_regions: 1')",Continuum radiation losses [J per (sec.cm2)],J per (sec.cm2)
+HeatFluxAtRegionBdIon,"('num_times: 502', 'num_regions: 1')",Ion thermal flux at region interfaces,
+HeatFluxAtRegionBdEle,"('num_times: 502', 'num_regions: 1')",Electron thermal flux at region interfaces,
+elec_temperature,"('num_times: 502', 'num_zones: 100')",Electron temperature [eV],eV
+elec_pressure,"('num_times: 502', 'num_zones: 100')",Electron pressure [J per cm3],J per cm3
+elec_density,"('num_times: 502', 'num_zones: 100')",Electron density [# per cm3],# per cm3
+elec_specific_internal_energy,"('num_times: 502', 'num_zones: 100')",Electron specific internal energy [J per (g.x)],J per (g.x)
+Radiation losses at boundaries,"('num_times: 502',)",Radiation losses at boundaries,
+FreqIntgRadEnLossRmin,"('num_times: 502',)",Radiation power losses at Rmin,
+FreqIntgRadEnLossRmax,"('num_times: 502',)",Radiation power losses at Rmax,
+TimeIntRadiationLossAtBds,"('num_times: 502',)",Time-integrated rad. losses at boundaries,
+TotIonInternalEn,"('num_times: 502',)",Total ion internal energy,
+TotEleInternalEn,"('num_times: 502',)",Total electron internal energy,
+TotKineticEnergy,"('num_times: 502',)",Total kinetic energy,
+TotalFluxRmin,"('num_times: 502',)",Total flux at Rmin,
+TotalFluxRmax,"('num_times: 502',)",Total flux at Rmax,
+EnTotRadiation,"('num_times: 502',)",Total radiation energy in plasma grid [J per (cm**X)],J per (cm**X)
+EnExchEleToRadTimeIntg,"('num_times: 502',)",Time-integrated energy exchanged from electrons to radiation [J per (cm**X)],J per (cm**X)
+EnLaserDepositedTimeIntg,"('num_times: 502',)",Time-integrated energy deposited in plasma due to laser deposition [J per (cm**X)],J per (cm**X)
+EnLaserDeposited,"('num_times: 502',)",Instantaneous energy deposited in plasma due to laser deposition [J per (sec.cm**X)],J per (sec.cm**X)
+EnMagnetic,"('num_times: 502',)",Instantaneous energy deposited in plasma due to discharge current [J per (sec.cm**X)],J per (sec.cm**X)
+EnRadSinkTimeIntg,"('num_times: 502',)",Time-integrated radiation energy sink [J per (cm**X)],J per (cm**X)
+EnRadSink,"('num_times: 502',)",Radiation egergy sink term at this time step [J per (cm**X)],J per (cm**X)
+EnTotMag,"('num_times: 502',)",Total internal B-field energy [J],J
+EnMagTimeIntg,"('num_times: 502',)",Time-integrated B-field energy source term [J per(cm**X.geofac)],J per(cm**X.geofac)
+EnJouleHeatingTimeIntg,"('num_times: 502',)",Time-integrated Joule heating energy source term [J per (cm**X.geofac)],J per (cm**X.geofac)
+EnLHSAll,"('num_times: 502',)",Total energy LHS for i+e+r [J],J
+EnRHSAll,"('num_times: 502',)",Total energy RHS for i+e+r [J],J
+AppliedVoltage,"('num_times: 502',)",Applied voltage for magnetic boundary condition [V],V
+DischargeCurrent,"('num_times: 502',)",Discharge current [Amps],Amps
+num_cr_freq_groups_for_time,"('num_times: 502',)",Number of photon energy groups at any givrn time step (CR calculation),
+photon_energy_group_bounds,"('num_times: 502', 'num_freq_groups_plus1: 51')",Photon energy grid boundaries [eV],eV
+FdIntgPowerLossRmin,"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved radiation losses - Rmin [J per eV],J per eV
+FdIntgPowerLossRmax,"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved radiation losses - Rmax [J per eV],J per eV
+FdPowerLossRmin,"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved radiation losses - Rmin [J per (sec.eV)],J per (sec.eV)
+FdPowerLossRmax,"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved radiation losses - Rmax [J per (sec.eV)],J per (sec.eV)
+Freq. resolved incident flux at Rmin [J per (cm2.sec.eV)],"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved incident flux at Rmin [J per (cm2.sec.eV)],J per (cm2.sec.eV)
+Freq. resolved incident flux at Rmax [J per (cm2.sec.eV)],"('num_times: 502', 'num_freq_groups: 50')",Freq. resolved incident flux at Rmax [J per (cm2.sec.eV)],J per (cm2.sec.eV)
+Freq. resolved net flux at region interfaces [J per (cm2.sec.eV)],"('num_times: 502', 'num_regions_plus1: 2', 'num_freq_groups: 50')",Freq. resolved net flux at region interfaces [J per (cm2.sec.eV)],J per (cm2.sec.eV)
+time_freq,"('num_freq_times: 0',)",Time (freq. resolved output) [sec],sec
+cycle_num_freq,"('num_freq_times: 0',)",Cycle count (freq. resolved output),
+Freq. resolved radiation energy density for nodes [J per (cm3.group)],"('num_freq_times: 0', 'num_nodes_plus1: 102', 'num_freq_groups: 50')",Freq. resolved radiation energy density for nodes [J per (cm3.group)],J per (cm3.group)
+Freq. resolved Rosseland opacity for nodes [cm2 per g],"('num_freq_times: 0', 'num_nodes_plus1: 102', 'num_freq_groups: 50')",Freq. resolved Rosseland opacity for nodes [cm2 per g],cm2 per g
+Freq. resolved heating rate for nodes [J per (g.sec.group)],"('num_freq_times: 0', 'num_nodes_plus1: 102', 'num_freq_groups: 50')",Freq. resolved heating rate for nodes [J per (g.sec.group)],J per (g.sec.group)
+Freq. resolved cooling rate for nodes [J per (g.sec.group)],"('num_freq_times: 0', 'num_nodes_plus1: 102', 'num_freq_groups: 50')",Freq. resolved cooling rate for nodes [J per (g.sec.group)],J per (g.sec.group)
+coor_names,"('num_dim: 1',)",Name of coordinate variable (Spect3D),
+name_nod_var,"('num_nod_var: 1',)",Name of node variable (Spect3D),
+name_elem_var,"('num_elem_var: 5',)",Names of hydro variables (Spect3D),
+name_fd_var,"('num_fd_var: 2',)",Names of flux drive variables (Spect3D),
+name_spatial_regn,"('num_regions: 1',)",Name of spatial region (Helios),
+name_rad_band,"('Number of filtered radiation bands: 0',)",Name of radiation bands (Helios,
+atomic_number_in_spatial_regn,"('num_regions: 1', 'num_dca_species: 0')",Atomic nums in spatial region (Helios),
+isotope_index_in_spatial_regn,"('num_regions: 1', 'num_dca_species: 0')",Isotope ids in spatial region (Helios),
+connect1,"('num_zones: 100', 'num_nod_per_el1: 2')",Connectivity,
+Number of elements in material,"('num_materials: 1',)",Number of elements in material,
+Ion fraction available for material,"('num_materials: 1',)",Ion fraction available for material,
+Populations available for material,"('num_materials: 1',)",Populations available for material,
+Atomic model available for material,"('num_materials: 1',)",Atomic model available for material,
+Number of ions in Propaceos file,"('num_materials: 1',)",Number of ions in Propaceos file,
+Number of levels in Propaceos file,"('num_materials: 1',)",Number of levels in Propaceos file,
+"Material uses DCA ? (0 = no , 1 = yes )","('num_materials: 1',)","Material uses DCA ? (0 = no , 1 = yes )",
+Material index,"('num_zones: 100',)",Material index,
+Atomic number of element in each Propaceos material,"('num_materials: 1', 'max_num_opacity_element: 2')",Atomic number of element in each Propaceos material,
+Isotope index of element in each Propaceos material,"('num_materials: 1', 'max_num_opacity_element: 2')",Isotope index of element in each Propaceos material,
+Relative fraction of element in each Propaceos material,"('num_materials: 1', 'max_num_opacity_element: 2')",Relative fraction of element in each Propaceos material,
+Min ion stage of element in each Propaceos material,"('num_materials: 1', 'max_num_opacity_element: 2')",Min ion stage of element in each Propaceos material,
+Max ion stage of element in each Propaceos material,"('num_materials: 1', 'max_num_opacity_element: 2')",Max ion stage of element in each Propaceos material,
+Ion fractions for zone,"('num_times: 502', 'num_zones: 100', 'max_num_ions_prop: 9')",Ion fractions for zone,
