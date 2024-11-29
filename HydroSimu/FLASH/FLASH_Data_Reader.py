@@ -148,6 +148,36 @@ def load_and_process_data(file_dir, file_sub_dir, filename_pattern, lrefine_max=
     return ProcessedData(ds_ug=ds_ug, dx=dx, dy=dy, xmax=xmax, xmin=xmin, ymax=ymax, ymin=ymin)
 
 
+def extract_field_array(data, field="dens", unit="code_density"):
+    """
+    Extracts data for a specified field across all time steps and returns it as a NumPy array.
+
+    Parameters:
+    -----------
+    data : object
+        The processed data object containing a list of uniform covering grids (ds_ug).
+    field : str, optional
+        The field to extract (default is "dens").
+    unit : str, optional
+        The unit to convert the field data into (default is "code_density").
+
+    Returns:
+    --------
+    dens_array : numpy.ndarray
+        A 3D NumPy array with the extracted data across all time steps. The array has shape
+        (time_steps, x_dim, y_dim), where time_steps is the number of time steps in data.ds_ug.
+    """
+    # Extract the field data across all time steps with a progress bar
+    data_array = np.array([
+        np.transpose(np.array(ug[(field)].to(unit))[:, :, 0])
+        for ug in tqdm(data.ds_ug, desc="Processing time steps", unit="step")
+    ])
+
+    # Print the shape of the resulting array
+    print("Shape of dens_array:", data_array.shape)
+    return data_array
+
+
 def plot_2D_map(data, plotvar, time_step, vmin=None, vmax=None, cmap="OrRd", log_scale=False, title="Density",
                 figsize=(4, 4), contour=False, levels=None):
     """
