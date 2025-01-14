@@ -41,7 +41,8 @@ import pandas as pd
 from tqdm import tqdm  # Import tqdm for the progress bar
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
-
+import dask.array as da
+from dask import delayed
 
 
 yt.funcs.mylog.setLevel(logging.ERROR)
@@ -149,9 +150,17 @@ def load_and_process_data(file_dir, file_sub_dir, filename_pattern, lrefine_max=
     return ProcessedData(ds_ug=ds_ug, dx=dx, dy=dy, xmax=xmax, xmin=xmin, ymax=ymax, ymin=ymin)
 
 
-def extract_field_array(data, field="dens", unit="code_density"):
+def read_ug(ug, field, unit):
+    # This function just reads and processes one time step.
+    # It returns a single 2D array (y_dim, x_dim) after slicing and transposing.
+    arr = ug[field].to(unit).v.astype(np.float32)[:, :, 0]
+    arr = arr.T  # transpose to get (y_dim, x_dim)
+    return arr
+
+def extract_field_array(data, field="dens", unit="code_density", chunks=(1, 1024, 1024)):
     """
-    Extracts data for a specified field across all time steps and returns it as a NumPy array.
+    Extracts data for a specified field across all time steps as a dask array.
+    This approach is faster and more stable for large datasets.
 
     Parameters:
     -----------
@@ -161,21 +170,38 @@ def extract_field_array(data, field="dens", unit="code_density"):
         The field to extract (default is "dens").
     unit : str, optional
         The unit to convert the field data into (default is "code_density").
+    chunks : tuple, optional
+        Desired chunks for the resulting dask array, default (1, 1024, 1024).
 
     Returns:
     --------
-    dens_array : numpy.ndarray
-        A 3D NumPy array with the extracted data across all time steps. The array has shape
-        (time_steps, x_dim, y_dim), where time_steps is the number of time steps in data.ds_ug.
+    data_array : dask.array.Array
+        A dask array representing the stacked field data across all time steps, shape:
+        (time_steps, y_dim, x_dim).
     """
-    # Extract the field data across all time steps with a progress bar
-    data_array = np.array([
-        np.transpose(np.array(ug[(field)].to(unit))[:, :, 0])
-        for ug in tqdm(data.ds_ug, desc="Processing time steps", unit="step")
-    ])
+    # First, load one sample to determine spatial dimensions:
+    sample_ug = data.ds_ug[0]
+    sample_arr = read_ug(sample_ug, field, unit)
+    y_dim, x_dim = sample_arr.shape
+    time_steps = len(data.ds_ug)
 
-    # Print the shape of the resulting array
-    print("Shape of dens_array:", data_array.shape)
+    # Wrap each time step loading in a delayed function to avoid immediate computation:
+    delayed_arrays = [
+        da.from_delayed(
+            delayed(read_ug)(ug, field, unit),
+            shape=(y_dim, x_dim),
+            dtype=np.float32
+        )
+        for ug in tqdm(data.ds_ug, desc="Preparing delayed loads", unit="step")
+    ]
+
+    # Stack all delayed arrays along a new time dimension:
+    data_array = da.stack(delayed_arrays, axis=0)
+
+    # Rechunk the data if desired:
+    data_array = data_array.rechunk(chunks)
+
+    print("Data shape (dask):", data_array.shape)
     return data_array
 
 
@@ -260,3 +286,277 @@ def plot_2D_map(data, plotvar, time_step, vmin=None, vmax=None, cmap="OrRd", log
     ax.set_title(f'{title} Map at time_step {time_step}', fontsize=6)
 
     return fig, ax
+
+def plot_1D_line(data, field_array, time_step, line_index, axis="x", title="1D Line Plot", xlabel=None, ylabel=None, figsize=(6, 4)):
+    """
+    Plot a 1D line of the field_array at a specific time and along a specific line.
+
+    Parameters:
+    -----------
+    data : object
+        Processed data object containing grid information (xmax, xmin, ymax, ymin, dx, dy).
+    field_array : numpy.ndarray
+        3D array of field data with dimensions (time_steps, x_dim, y_dim).
+    time_step : int
+        Index of the time step to plot.
+    line_index : int
+        Index of the line to plot. For axis="x", it represents the y-index; for axis="y", it represents the x-index.
+    axis : str, optional
+        Axis along which to plot the line ("x" for horizontal, "y" for vertical). Default is "x".
+    title : str, optional
+        Title of the plot. Default is "1D Line Plot".
+    xlabel : str, optional
+        Label for the x-axis. Default is None, automatically set based on the axis.
+    ylabel : str, optional
+        Label for the y-axis. Default is None, automatically set to the field name.
+    figsize : tuple, optional
+        Size of the figure in inches. Default is (6, 4).
+
+    Returns:
+    --------
+    fig, ax : matplotlib figure and axis
+        Figure and axis of the generated plot.
+    """
+    # Select the 1D data based on the axis
+    if axis == "x":
+        x = np.linspace(data.xmin, data.xmax, field_array.shape[1])/1000.
+        y = field_array[time_step, :, line_index]
+        xlabel = xlabel or r"X (mm)"
+        ylabel = ylabel or f"{field_array}"
+    elif axis == "y":
+        x = np.linspace(data.ymin, data.ymax, field_array.shape[2])/1000.
+        y = field_array[time_step, line_index, :]
+        xlabel = xlabel or r"Y (mm)"
+        ylabel = ylabel or f"{field_array}"
+    else:
+        raise ValueError("Invalid axis. Must be 'x' or 'y'.")
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(figsize[0] / 2.54, figsize[1] / 2.54), dpi=300)
+    ax.plot(x, y, lw=0.8)
+
+    # Set plot labels and title
+    ax.set_title(title, fontsize=8)
+    ax.set_xlabel(xlabel, fontsize=7)
+    ax.set_ylabel(ylabel, fontsize=7)
+
+    # Set ticks and spines
+    ax.tick_params(axis='both', direction='in', labelsize=6, length=4, width=0.3, which='major', top=True, right=True)
+    ax.tick_params(axis='both', direction='in', length=2, width=0.3, which='minor', top=True, right=True)
+    ax.minorticks_on()
+
+    for spine in ax.spines.values():
+        spine.set_linewidth(0.3)
+
+    return fig, ax
+
+def plot_temporal_evolution(data, field_array, xpos, ypos, title="Temporal Evolution at Point", xlabel=None, ylabel=None, figsize=(6, 4)):
+    """
+    Plot the temporal evolution of a field value at a specific spatial point (x1, y1).
+
+    Parameters:
+    -----------
+    data : object
+        Processed data object containing grid information (xmax, xmin, ymax, ymin, dx, dy).
+    field_array : numpy.ndarray
+        3D array of field data with dimensions (time_steps, x_dim, y_dim).
+    x1, y1 : float
+        Spatial coordinates (in micrometres) of the point to extract the temporal evolution.
+    title : str, optional
+        Title of the plot. Default is "Temporal Evolution at Point".
+    xlabel : str, optional
+        Label for the x-axis (time axis). Default is None, automatically set to "Time (ns)".
+    ylabel : str, optional
+        Label for the y-axis (field value). Default is None, automatically set to "Field Value".
+    figsize : tuple, optional
+        Size of the figure in inches. Default is (6, 4).
+
+    Returns:
+    --------
+    fig, ax : matplotlib figure and axis
+        Figure and axis of the generated plot.
+    """
+    # Calculate the indices of the point (x1, y1) in the grid
+    x_index = int((xpos - data.xmin) / data.dx)
+    y_index = int((ypos - data.ymin) / data.dy)
+
+    # Extract the temporal evolution of the field value at the specified point
+    temporal_data = field_array[:, x_index, y_index]
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(figsize[0] / 2.54, figsize[1] / 2.54), dpi=300)
+    time = np.arange(len(temporal_data))  # Assuming unit time steps
+    ax.plot(time, temporal_data, lw=0.8)
+
+    # Set plot labels and title
+    ax.set_title(f"{title} ({xpos:.1f} μm, {ypos:.1f} μm)", fontsize=8)
+    ax.set_xlabel(xlabel or "Time (arbitrary units)", fontsize=7)
+    ax.set_ylabel(ylabel or "Field Value", fontsize=7)
+
+    # Set ticks and spines
+    ax.tick_params(axis='both', direction='in', labelsize=6, length=4, width=0.3, which='major', top=True, right=True)
+    ax.tick_params(axis='both', direction='in', length=2, width=0.3, which='minor', top=True, right=True)
+    ax.minorticks_on()
+
+    for spine in ax.spines.values():
+        spine.set_linewidth(0.3)
+
+    return fig, ax
+
+
+
+
+import matplotlib.animation as animation
+
+
+def animate_2D_map(data, field_array, vmin=None, vmax=None, cmap="OrRd", log_scale=False, title="2D Map Animation", 
+                   interval=100, repeat=True, save_as=None):
+    """
+    Create an animation of a 2D map showing the time evolution of the field.
+
+    Parameters:
+    -----------
+    data : object
+        Processed data object containing grid information (xmax, xmin, ymax, ymin).
+    field_array : numpy.ndarray
+        3D array of field data with dimensions (time_steps, x_dim, y_dim).
+    vmin, vmax : float, optional
+        Minimum and maximum values for color normalization. Default is None (automatic scaling).
+    cmap : str, optional
+        Colormap to use for displaying the data. Default is "OrRd".
+    log_scale : bool, optional
+        Whether to use logarithmic scaling for the colormap. Default is False.
+    title : str, optional
+        Title of the animation. Default is "2D Map Animation".
+    interval : int, optional
+        Interval between frames in milliseconds. Default is 100 ms.
+    repeat : bool, optional
+        Whether the animation should repeat after the last frame. Default is True.
+    save_as : str, optional
+        Path to save the animation as a file. If None, the animation is not saved. Default is None.
+
+    Returns:
+    --------
+    anim : matplotlib.animation.FuncAnimation
+        The animation object.
+    """
+    from matplotlib.colors import LogNorm
+
+    # Determine the normalization based on whether log scale is requested
+    if log_scale:
+        norm = LogNorm(vmin=vmin, vmax=vmax)
+    else:
+        norm = None
+
+    # Set up the figure and axis
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=300)
+    extent = [data.xmin, data.xmax, data.ymin, data.ymax]
+    img = ax.imshow(field_array[0, :, :], origin='lower', extent=extent, cmap=cmap, vmin=vmin, vmax=vmax, norm=norm)
+    ax.set_aspect('equal')
+    ax.set_xlabel(r"X ($\mathrm{\mu}$m)")
+    ax.set_ylabel(r"Y ($\mathrm{\mu}$m)")
+    cbar = plt.colorbar(img, ax=ax)
+    cbar.set_label("Field Value")
+
+    # Update function for each frame
+    def update(frame):
+        img.set_array(field_array[frame, :, :])
+        ax.set_title(f"{title}\nTime Step: {frame}", fontsize=10)
+        return img,
+
+    # Create the animation
+    anim = animation.FuncAnimation(fig, update, frames=field_array.shape[0],
+                                    interval=interval, repeat=repeat)
+
+    # Save the animation if a file path is provided
+    if save_as:
+        anim.save(save_as, writer='pillow' if save_as.endswith('.gif') else 'ffmpeg', fps=2)
+
+    return anim
+
+
+
+def save_all_frames_as_png(
+    data,
+    field_array,
+    field_name,
+    output_dir,
+    vmin=None,
+    vmax=None,
+    cmap="OrRd",
+    log_scale=False,
+    title=None
+):
+    """
+    Save all frames of a 3D field array as PNG images, one per frame.
+
+    Parameters
+    ----------
+    data : object
+        Processed data object containing grid information (xmax, xmin, ymax, ymin).
+    field_array : numpy.ndarray
+        3D array of field data with dimensions (time_steps, x_dim, y_dim).
+    field_name : str
+        Name of the field (used in the output filename).
+    output_dir : str
+        Directory where the PNG files will be saved.
+    vmin, vmax : float, optional
+        Minimum and maximum values for color normalization. If None, they are computed from the data.
+    cmap : str, optional
+        Colormap to use for displaying the data.
+    log_scale : bool, optional
+        Whether to use logarithmic scaling for the colormap.
+    title : str, optional
+        Title for the plot.
+    """
+
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Compute vmin and vmax from the entire data if not provided
+    if vmin is None:
+        vmin = float(np.nanmin(field_array))
+    if vmax is None:
+        vmax = float(np.nanmax(field_array))
+
+    # Determine normalization
+    norm = LogNorm(vmin=vmin, vmax=vmax) if log_scale else None
+
+    # For efficiency, we will create one figure and reuse it to minimize overhead
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=300)
+    extent = [data.xmin, data.xmax, data.ymin, data.ymax]
+
+    # Initialize the image with the first frame's data
+    img = ax.imshow(field_array[0],
+                    origin='lower',
+                    extent=extent,
+                    cmap=cmap,
+                    norm=norm)
+    ax.set_aspect('equal')
+    ax.set_xlabel(r"X ($\mathrm{\mu}$m)")
+    ax.set_ylabel(r"Y ($\mathrm{\mu}$m)")
+
+    cbar = plt.colorbar(img, ax=ax)
+    cbar.set_label("Field Value")
+
+    # Create a text object for the title and update it each frame
+    title_obj = ax.set_title(f"{title or field_name}\nTime Step: 0", fontsize=10)
+
+    # Loop over all frames and save them
+    n_frames = field_array.shape[0]
+    for frame in range(21):
+        # Update the image data
+        frame =frame+200
+        img.set_data(field_array[frame])
+        # Update the title to reflect the current frame
+        ax.set_title(f"{title or field_name}\nTime Step: {frame}", fontsize=10)
+
+        # Construct the output filename
+        filename = f"{field_name}_frame{frame:04d}.png"
+        filepath = os.path.join(output_dir, filename)
+
+        # Save the figure
+        plt.savefig(filepath, bbox_inches='tight')
+        print(f"Saved frame {frame} as {filepath}")
+
+    plt.close(fig)
