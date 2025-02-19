@@ -37,6 +37,7 @@ def load_and_process_data(file_path):
     elec_density = data['elec_density'].values
     ion_temperature = data['ion_temperature'].values
     elec_temperature = data['elec_temperature'].values
+    rad_temperature = data['radiation_temperature'].values
     zone_mass = data['zone_mass'].values
     pressure = data['ion_pressure'].values + data['elec_pressure'].values
     fluid_velocity = data['fluid_velocity'].values / 100000  # Convert to km/s
@@ -59,6 +60,7 @@ def load_and_process_data(file_path):
         "elec_density": elec_density,
         "ion_temperature": ion_temperature,
         "elec_temperature": elec_temperature,
+        "rad_temperature": rad_temperature,
         "zone_mass": zone_mass,
         "pressure": pressure,
         "fluid_velocity": fluid_velocity,
@@ -166,7 +168,7 @@ def plot_electron_temp_pcolormesh(time_edges, radius_edges, elec_temp, figsize=(
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
 
     # Plot pcolormesh for electron temperature data
-    cmesh = ax.pcolormesh(time_edges, radius_edges.T, elec_temp.T, shading='auto', cmap=cmap, vmin=0.025, vmax=70)
+    cmesh = ax.pcolormesh(time_edges, radius_edges.T, elec_temp.T, shading='auto', cmap=cmap, )
 
     # Add color bar
     cbar = fig.colorbar(cmesh, ax=ax)
